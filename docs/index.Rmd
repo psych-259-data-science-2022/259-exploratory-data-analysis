@@ -113,7 +113,6 @@ ds %>% summarize(age_min = min(age), mean_age = mean(age), max_age = max(age))
 ds %>% drop_na(age) %>% summarize(age_min = min(age), mean_age = mean(age), max_age = max(age))
 summary(ds$age) #Also a nice option
 ```
-
 ---
 # Things we already know how to do
 ```{r}
@@ -178,27 +177,13 @@ ds %>% create_report()
 ```
 
 ---
-`r chunk_reveal("mutate_across", break_type = "rotate", float = "none", widths = c(12, 1), title = "# Mutate across()")`
-
-```{r mutate_across, include = FALSE}
-ds <- starwars %>% select(-where(is.list))
-ds #ROTATE
-ds %>% mutate(across(everything(), as.character)) #ROTATE
-ds %>% mutate(across(c("height", "mass"), round)) #ROTATE
-ds %>% mutate(across(where(is.numeric), round)) #ROTATE
-ds %>% mutate(across(where(is.numeric), round, .names = "{.col}_rounded")) #ROTATE
-ds %>% mutate(across(where(is.numeric), ~ .x *100)) #ROTATE
-ds %>% mutate(across(ends_with("color"), ~ str_remove_all(.x, "[:punct:]"))) #ROTATE
-```
-
----
 # Other option: Make your own plots
 
 - Introducing the `ggplot2` package
 - Parts of a ggplot call:
 ```{r, eval = F}
 # Parts of a ggplot call
-ggplot(data = DATASET, aes(MAPPING STATEMENT)) + 
+ggplot(DATASET, aes(MAPPING STATEMENT)) + 
   geom_TYPE() + 
   geom_TYPE() + 
   ETC... + 
@@ -215,6 +200,33 @@ ggplot(data = DATASET, aes(MAPPING STATEMENT)) +
 # What type of aesthetic mapping depends on what type of geom
 - `?geom_point` and scroll down to find required aesthetics in bold
 .center[![image](aesthetics.png)]
+
+---
+`r chunk_reveal("geoms", break_type = "rotate", widths = c(1, 1), title = "Simple histogram")`
+
+```{r geoms, include = FALSE}
+ggplot(ds, aes(x = posy_mean)) + 
+  geom_histogram() + #ROTATE
+  geom_density() + #ROTATE
+  geom_boxplot() + #ROTATE
+  xlab("Average vertical head position")
+```
+
+---
+`r chunk_reveal("scatterplot", break_type = "auto", widths = c(1, 1), title = "Simple scatterplot")`
+
+```{r scatterplot, include = FALSE}
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) + 
+  geom_point() + 
+  xlim(-20, 20) + 
+  ylim(-20, 20) + 
+  xlab("Mean horizontal head position") + 
+  ylab("Mean vertical head position") +
+  geom_vline(xintercept = 0) + 
+  geom_hline(yintercept = 0)
+```
+
+
 
 <!-- adjust font size and other formatting defs in this css code chunk -->
 ```{css, eval = TRUE, echo = FALSE}

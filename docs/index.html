@@ -185,7 +185,6 @@ summary(ds$age) #Also a nice option
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
   18.00   19.00   20.00   19.86   21.00   24.00       2 
 ```
-
 ---
 # Things we already know how to do
 
@@ -284,262 +283,6 @@ ds %&gt;% create_report()
 ```
 
 ---
-count: false
- 
-# Mutate across()
-.panel1-mutate_across-rotate[
-
-```r
-ds &lt;- starwars %&gt;% select(-where(is.list))
-*ds
-```
-]
- 
-.panel2-mutate_across-rotate[
-
-```
-# A tibble: 87 × 11
-   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
-   &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
- 1 Luke S…    172    77 blond       fair       blue            19   male  mascu…
- 2 C-3PO      167    75 &lt;NA&gt;        gold       yellow         112   none  mascu…
- 3 R2-D2       96    32 &lt;NA&gt;        white, bl… red             33   none  mascu…
- 4 Darth …    202   136 none        white      yellow          41.9 male  mascu…
- 5 Leia O…    150    49 brown       light      brown           19   fema… femin…
- 6 Owen L…    178   120 brown, grey light      blue            52   male  mascu…
- 7 Beru W…    165    75 brown       light      blue            47   fema… femin…
- 8 R5-D4       97    32 &lt;NA&gt;        white, red red             NA   none  mascu…
- 9 Biggs …    183    84 black       light      brown           24   male  mascu…
-10 Obi-Wa…    182    77 auburn, wh… fair       blue-gray       57   male  mascu…
-# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
-```
-]
-
----
-count: false
- 
-# Mutate across()
-.panel1-mutate_across-rotate[
-
-```r
-ds &lt;- starwars %&gt;% select(-where(is.list))
-*ds %&gt;% mutate(across(everything(), as.character))
-```
-]
- 
-.panel2-mutate_across-rotate[
-
-```
-# A tibble: 87 × 11
-   name    height mass  hair_color  skin_color eye_color birth_year sex   gender
-   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt; &lt;chr&gt; 
- 1 Luke S… 172    77    blond       fair       blue      19         male  mascu…
- 2 C-3PO   167    75    &lt;NA&gt;        gold       yellow    112        none  mascu…
- 3 R2-D2   96     32    &lt;NA&gt;        white, bl… red       33         none  mascu…
- 4 Darth … 202    136   none        white      yellow    41.9       male  mascu…
- 5 Leia O… 150    49    brown       light      brown     19         fema… femin…
- 6 Owen L… 178    120   brown, grey light      blue      52         male  mascu…
- 7 Beru W… 165    75    brown       light      blue      47         fema… femin…
- 8 R5-D4   97     32    &lt;NA&gt;        white, red red       &lt;NA&gt;       none  mascu…
- 9 Biggs … 183    84    black       light      brown     24         male  mascu…
-10 Obi-Wa… 182    77    auburn, wh… fair       blue-gray 57         male  mascu…
-# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
-```
-]
-
----
-count: false
- 
-# Mutate across()
-.panel1-mutate_across-rotate[
-
-```r
-ds &lt;- starwars %&gt;% select(-where(is.list))
-*ds %&gt;% mutate(across(c("height", "mass"), round))
-```
-]
- 
-.panel2-mutate_across-rotate[
-
-```
-# A tibble: 87 × 11
-   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
-   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
- 1 Luke S…    172    77 blond       fair       blue            19   male  mascu…
- 2 C-3PO      167    75 &lt;NA&gt;        gold       yellow         112   none  mascu…
- 3 R2-D2       96    32 &lt;NA&gt;        white, bl… red             33   none  mascu…
- 4 Darth …    202   136 none        white      yellow          41.9 male  mascu…
- 5 Leia O…    150    49 brown       light      brown           19   fema… femin…
- 6 Owen L…    178   120 brown, grey light      blue            52   male  mascu…
- 7 Beru W…    165    75 brown       light      blue            47   fema… femin…
- 8 R5-D4       97    32 &lt;NA&gt;        white, red red             NA   none  mascu…
- 9 Biggs …    183    84 black       light      brown           24   male  mascu…
-10 Obi-Wa…    182    77 auburn, wh… fair       blue-gray       57   male  mascu…
-# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
-```
-]
-
----
-count: false
- 
-# Mutate across()
-.panel1-mutate_across-rotate[
-
-```r
-ds &lt;- starwars %&gt;% select(-where(is.list))
-*ds %&gt;% mutate(across(where(is.numeric), round))
-```
-]
- 
-.panel2-mutate_across-rotate[
-
-```
-# A tibble: 87 × 11
-   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
-   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
- 1 Luke S…    172    77 blond       fair       blue              19 male  mascu…
- 2 C-3PO      167    75 &lt;NA&gt;        gold       yellow           112 none  mascu…
- 3 R2-D2       96    32 &lt;NA&gt;        white, bl… red               33 none  mascu…
- 4 Darth …    202   136 none        white      yellow            42 male  mascu…
- 5 Leia O…    150    49 brown       light      brown             19 fema… femin…
- 6 Owen L…    178   120 brown, grey light      blue              52 male  mascu…
- 7 Beru W…    165    75 brown       light      blue              47 fema… femin…
- 8 R5-D4       97    32 &lt;NA&gt;        white, red red               NA none  mascu…
- 9 Biggs …    183    84 black       light      brown             24 male  mascu…
-10 Obi-Wa…    182    77 auburn, wh… fair       blue-gray         57 male  mascu…
-# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
-```
-]
-
----
-count: false
- 
-# Mutate across()
-.panel1-mutate_across-rotate[
-
-```r
-ds &lt;- starwars %&gt;% select(-where(is.list))
-*ds %&gt;% mutate(across(where(is.numeric), round, .names = "{.col}_rounded"))
-```
-]
- 
-.panel2-mutate_across-rotate[
-
-```
-# A tibble: 87 × 14
-   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
-   &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
- 1 Luke S…    172    77 blond       fair       blue            19   male  mascu…
- 2 C-3PO      167    75 &lt;NA&gt;        gold       yellow         112   none  mascu…
- 3 R2-D2       96    32 &lt;NA&gt;        white, bl… red             33   none  mascu…
- 4 Darth …    202   136 none        white      yellow          41.9 male  mascu…
- 5 Leia O…    150    49 brown       light      brown           19   fema… femin…
- 6 Owen L…    178   120 brown, grey light      blue            52   male  mascu…
- 7 Beru W…    165    75 brown       light      blue            47   fema… femin…
- 8 R5-D4       97    32 &lt;NA&gt;        white, red red             NA   none  mascu…
- 9 Biggs …    183    84 black       light      brown           24   male  mascu…
-10 Obi-Wa…    182    77 auburn, wh… fair       blue-gray       57   male  mascu…
-# … with 77 more rows, and 5 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;,
-#   height_rounded &lt;dbl&gt;, mass_rounded &lt;dbl&gt;, birth_year_rounded &lt;dbl&gt;
-```
-]
-
----
-count: false
- 
-# Mutate across()
-.panel1-mutate_across-rotate[
-
-```r
-ds &lt;- starwars %&gt;% select(-where(is.list))
-*ds %&gt;% mutate(across(where(is.numeric), ~ .x *100))
-```
-]
- 
-.panel2-mutate_across-rotate[
-
-```
-# A tibble: 87 × 11
-   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
-   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
- 1 Luke S…  17200  7700 blond       fair       blue            1900 male  mascu…
- 2 C-3PO    16700  7500 &lt;NA&gt;        gold       yellow         11200 none  mascu…
- 3 R2-D2     9600  3200 &lt;NA&gt;        white, bl… red             3300 none  mascu…
- 4 Darth …  20200 13600 none        white      yellow          4190 male  mascu…
- 5 Leia O…  15000  4900 brown       light      brown           1900 fema… femin…
- 6 Owen L…  17800 12000 brown, grey light      blue            5200 male  mascu…
- 7 Beru W…  16500  7500 brown       light      blue            4700 fema… femin…
- 8 R5-D4     9700  3200 &lt;NA&gt;        white, red red               NA none  mascu…
- 9 Biggs …  18300  8400 black       light      brown           2400 male  mascu…
-10 Obi-Wa…  18200  7700 auburn, wh… fair       blue-gray       5700 male  mascu…
-# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
-```
-]
-
----
-count: false
- 
-# Mutate across()
-.panel1-mutate_across-rotate[
-
-```r
-ds &lt;- starwars %&gt;% select(-where(is.list))
-*ds %&gt;% mutate(across(ends_with("color"), ~ str_remove_all(.x, "[:punct:]")))
-```
-]
- 
-.panel2-mutate_across-rotate[
-
-```
-# A tibble: 87 × 11
-   name     height  mass hair_color skin_color eye_color birth_year sex   gender
-   &lt;chr&gt;     &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
- 1 Luke Sk…    172    77 blond      fair       blue            19   male  mascu…
- 2 C-3PO       167    75 &lt;NA&gt;       gold       yellow         112   none  mascu…
- 3 R2-D2        96    32 &lt;NA&gt;       white blue red             33   none  mascu…
- 4 Darth V…    202   136 none       white      yellow          41.9 male  mascu…
- 5 Leia Or…    150    49 brown      light      brown           19   fema… femin…
- 6 Owen La…    178   120 brown grey light      blue            52   male  mascu…
- 7 Beru Wh…    165    75 brown      light      blue            47   fema… femin…
- 8 R5-D4        97    32 &lt;NA&gt;       white red  red             NA   none  mascu…
- 9 Biggs D…    183    84 black      light      brown           24   male  mascu…
-10 Obi-Wan…    182    77 auburn wh… fair       bluegray        57   male  mascu…
-# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
-```
-]
-
-&lt;style&gt;
-.panel1-mutate_across-rotate {
-  color: black;
-  width: 90.4615384615385%;
-  hight: 32%;
-  float: none;
-  padding-left: 1%;
-  font-size: 80%
-}
-.panel2-mutate_across-rotate {
-  color: black;
-  width: 7.53846153846154%;
-  hight: 32%;
-  float: none;
-  padding-left: 1%;
-  font-size: 80%
-}
-.panel3-mutate_across-rotate {
-  color: black;
-  width: NA%;
-  hight: 33%;
-  float: none;
-  padding-left: 1%;
-  font-size: 80%
-}
-&lt;/style&gt;
-
-
-
-
-
----
 # Other option: Make your own plots
 
 - Introducing the `ggplot2` package
@@ -547,7 +290,7 @@ ds &lt;- starwars %&gt;% select(-where(is.list))
 
 ```r
 # Parts of a ggplot call
-ggplot(data = DATASET, aes(MAPPING STATEMENT)) + 
+ggplot(DATASET, aes(MAPPING STATEMENT)) + 
   geom_TYPE() + 
   geom_TYPE() + 
   ETC... + 
@@ -564,6 +307,269 @@ ggplot(data = DATASET, aes(MAPPING STATEMENT)) +
 # What type of aesthetic mapping depends on what type of geom
 - `?geom_point` and scroll down to find required aesthetics in bold
 .center[![image](aesthetics.png)]
+
+---
+count: false
+ 
+Simple histogram
+.panel1-geoms-rotate[
+
+```r
+ggplot(ds, aes(x = posy_mean)) +
+* geom_histogram(binwidth = 5) +
+  xlab("Average vertical head position")
+```
+]
+ 
+.panel2-geoms-rotate[
+![](index_files/figure-html/geoms_rotate_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple histogram
+.panel1-geoms-rotate[
+
+```r
+ggplot(ds, aes(x = posy_mean)) +
+* geom_density() +
+  xlab("Average vertical head position")
+```
+]
+ 
+.panel2-geoms-rotate[
+![](index_files/figure-html/geoms_rotate_02_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple histogram
+.panel1-geoms-rotate[
+
+```r
+ggplot(ds, aes(x = posy_mean)) +
+* geom_boxplot() +
+  xlab("Average vertical head position")
+```
+]
+ 
+.panel2-geoms-rotate[
+![](index_files/figure-html/geoms_rotate_03_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-geoms-rotate {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-geoms-rotate {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-geoms-rotate {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+count: false
+ 
+Simple scatterplot
+.panel1-scatterplot-auto[
+
+```r
+*ggplot(ds, aes(x = posx_mean, y = posy_mean))
+```
+]
+ 
+.panel2-scatterplot-auto[
+![](index_files/figure-html/scatterplot_auto_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple scatterplot
+.panel1-scatterplot-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+* geom_point()
+```
+]
+ 
+.panel2-scatterplot-auto[
+![](index_files/figure-html/scatterplot_auto_02_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple scatterplot
+.panel1-scatterplot-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+  geom_point() +
+* xlim(-20, 20)
+```
+]
+ 
+.panel2-scatterplot-auto[
+![](index_files/figure-html/scatterplot_auto_03_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple scatterplot
+.panel1-scatterplot-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+  geom_point() +
+  xlim(-20, 20) +
+* ylim(-20, 20)
+```
+]
+ 
+.panel2-scatterplot-auto[
+![](index_files/figure-html/scatterplot_auto_04_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple scatterplot
+.panel1-scatterplot-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+  geom_point() +
+  xlim(-20, 20) +
+  ylim(-20, 20) +
+* xlab("Mean horizontal head position")
+```
+]
+ 
+.panel2-scatterplot-auto[
+![](index_files/figure-html/scatterplot_auto_05_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple scatterplot
+.panel1-scatterplot-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+  geom_point() +
+  xlim(-20, 20) +
+  ylim(-20, 20) +
+  xlab("Mean horizontal head position") +
+* ylab("Mean vertical head position")
+```
+]
+ 
+.panel2-scatterplot-auto[
+![](index_files/figure-html/scatterplot_auto_06_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple scatterplot
+.panel1-scatterplot-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+  geom_point() +
+  xlim(-20, 20) +
+  ylim(-20, 20) +
+  xlab("Mean horizontal head position") +
+  ylab("Mean vertical head position") +
+* geom_vline(xintercept = 0)
+```
+]
+ 
+.panel2-scatterplot-auto[
+![](index_files/figure-html/scatterplot_auto_07_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Simple scatterplot
+.panel1-scatterplot-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+  geom_point() +
+  xlim(-20, 20) +
+  ylim(-20, 20) +
+  xlab("Mean horizontal head position") +
+  ylab("Mean vertical head position") +
+  geom_vline(xintercept = 0) +
+* geom_hline(yintercept = 0)
+```
+]
+ 
+.panel2-scatterplot-auto[
+![](index_files/figure-html/scatterplot_auto_08_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-scatterplot-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-scatterplot-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-scatterplot-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+
 
 &lt;!-- adjust font size and other formatting defs in this css code chunk --&gt;
 &lt;style type="text/css"&gt;
