@@ -311,12 +311,12 @@ ggplot(DATASET, aes(MAPPING STATEMENT)) +
 ---
 count: false
  
-Simple histogram
+Single-aesthetic plots
 .panel1-geoms-rotate[
 
 ```r
-ggplot(ds, aes(x = posy_mean)) +
-* geom_histogram(binwidth = 5) +
+ggplot(ds, aes(x = posy_std)) +
+* geom_histogram() +
   xlab("Average vertical head position")
 ```
 ]
@@ -328,11 +328,11 @@ ggplot(ds, aes(x = posy_mean)) +
 ---
 count: false
  
-Simple histogram
+Single-aesthetic plots
 .panel1-geoms-rotate[
 
 ```r
-ggplot(ds, aes(x = posy_mean)) +
+ggplot(ds, aes(x = posy_std)) +
 * geom_density() +
   xlab("Average vertical head position")
 ```
@@ -345,11 +345,11 @@ ggplot(ds, aes(x = posy_mean)) +
 ---
 count: false
  
-Simple histogram
+Single-aesthetic plots
 .panel1-geoms-rotate[
 
 ```r
-ggplot(ds, aes(x = posy_mean)) +
+ggplot(ds, aes(x = posy_std)) +
 * geom_boxplot() +
   xlab("Average vertical head position")
 ```
@@ -381,6 +381,101 @@ ggplot(ds, aes(x = posy_mean)) +
   width: NA%;
   hight: 33%;
   float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+count: false
+ 
+Add a category
+.panel1-categorical-rotate[
+
+```r
+ggplot(ds) +
+*geom_boxplot(aes(y = posy_std))
+```
+]
+ 
+.panel2-categorical-rotate[
+![](index_files/figure-html/categorical_rotate_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Add a category
+.panel1-categorical-rotate[
+
+```r
+ggplot(ds) +
+*geom_boxplot(aes(x = condition, y = posy_std))
+```
+]
+ 
+.panel2-categorical-rotate[
+![](index_files/figure-html/categorical_rotate_02_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Add a category
+.panel1-categorical-rotate[
+
+```r
+ggplot(ds) +
+*geom_boxplot(aes(x = condition, y = posy_std, fill = condition))
+```
+]
+ 
+.panel2-categorical-rotate[
+![](index_files/figure-html/categorical_rotate_03_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Add a category
+.panel1-categorical-rotate[
+
+```r
+ggplot(ds) +
+*geom_boxplot(aes(x = condition, y = posy_std, fill = target))
+```
+]
+ 
+.panel2-categorical-rotate[
+![](index_files/figure-html/categorical_rotate_04_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-categorical-rotate {
+  color: black;
+  width: 65.3333333333333%;
+  hight: 32%;
+  float: none;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-categorical-rotate {
+  color: black;
+  width: 32.6666666666667%;
+  hight: 32%;
+  float: none;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-categorical-rotate {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: none;
   padding-left: 1%;
   font-size: 80%
 }

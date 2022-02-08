@@ -202,14 +202,25 @@ ggplot(DATASET, aes(MAPPING STATEMENT)) +
 .center[![image](aesthetics.png)]
 
 ---
-`r chunk_reveal("geoms", break_type = "rotate", widths = c(1, 1), title = "Simple histogram")`
+`r chunk_reveal("geoms", break_type = "rotate", widths = c(1, 1), title = "Single-aesthetic plots")`
 
 ```{r geoms, include = FALSE}
-ggplot(ds, aes(x = posy_mean)) + 
+ggplot(ds, aes(x = posy_std)) + 
   geom_histogram() + #ROTATE
   geom_density() + #ROTATE
   geom_boxplot() + #ROTATE
   xlab("Average vertical head position")
+```
+
+---
+`r chunk_reveal("categorical", float = "none", break_type = "rotate", widths = c(2, 1), title = "Add a category")`
+
+```{r categorical, include = FALSE}
+ggplot(ds) + 
+ geom_boxplot(aes(y = posy_std)) + #ROTATE 
+ geom_boxplot(aes(x = condition, y = posy_std)) + #ROTATE
+ geom_boxplot(aes(x = condition, y = posy_std, fill = condition)) + #ROTATE
+ geom_boxplot(aes(x = condition, y = posy_std, fill = target)) #ROTATE
 ```
 
 ---
