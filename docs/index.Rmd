@@ -39,7 +39,6 @@ knitr::opts_chunk$set(fig.width = 6, message = FALSE, warning = FALSE, comment =
 library(flipbookr)
 library(icons)
 library(tidyverse)
-library(visdat)
 library(DataExplorer)
 library(here)
 ```
@@ -83,7 +82,7 @@ ds <- ds %>% relocate(test_date:humidity, .after = condition)
 
 - Ways to explore and check data
   * `dplyr` functions like `filter()`, `summarize()`, and `count()`
-  * Specialized packages like `DataExplorer` and `visdat`
+  * Specialized packages: `DataExplorer`
   * Plotting distributions using `ggplot2`
  
 .content-box-blue[
@@ -101,8 +100,6 @@ glimpse(ds)
 ---
 # Things we already know how to do
 ```{r}
-# Check the number of participant ids
-length(unique(ds$id)) # Should be 30
 # Filter based on expected ranges
 ds %>% select(id, age) %>% filter(age < 18 | age > 22)
 # Filter based a set of possible values
@@ -115,9 +112,48 @@ ds %>% select(id, handedness) %>% filter(!(handedness %in% c("Right", "Left")))
 ds %>% summarize(age_min = min(age), mean_age = mean(age), max_age = max(age))
 ds %>% drop_na(age) %>% summarize(age_min = min(age), mean_age = mean(age), max_age = max(age))
 summary(ds$age) #Also a nice option
+```
+
+---
+# Things we already know how to do
+```{r}
+# Check the number of participant ids
+length(unique(ds$id)) # Should be 30
 # Count
 count(ds, sex)
 ```
+
+---
+# Other ways to explore data
+
+- `DataExplorer` package
+  * Quickly generate EDA plots for every column in your dataset
+  * `plot_histogram` and `plot_density` for continuous variables
+  * `plot_bar` for categorical
+  * `plot_boxplot` for detecting outliers
+  * `plot_missing` for missingness
+  * `plot_correlation` for between-column correlations at a glance
+  * `create_report` for everything
+- What it's not for: making publication-ready plots
+
+---
+# Data Explorer: Histograms
+```{r}
+ds %>% select(condition, gazex_std:posy_speed) %>% plot_histogram()
+```
+
+---
+# Data Explorer: Density plots
+```{r}
+ds %>% select(condition, gazex_std:posy_speed) %>% plot_density()
+```
+
+---
+# Data Explorer: Boxplots by condition
+```{r}
+ds %>% select(condition, gazex_std:posy_speed) %>% plot_boxplot(by = "condition")
+```
+
 
 ---
 `r chunk_reveal("mutate_across", break_type = "rotate", float = "none", widths = c(12, 1), title = "# Mutate across()")`
