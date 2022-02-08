@@ -46,8 +46,14 @@ library(here)
 
 ```{r, include = F}
 # Set up the file we'll be using
-
-
+ds <- read_csv("data-raw/raw_data.csv")
+demo <- readxl::read_excel("data-raw/participant_demo.xlsx", sheet = "Data") %>% rename_all(janitor::make_clean_names)
+ds <- ds %>% pivot_longer(-id, names_to = "variable", values_to = "value") %>% 
+  mutate(condition = ifelse(str_detect(variable, "walk"), "walk", "search"),
+         variable = str_remove_all(variable, "walk_"),
+         variable = str_remove_all(variable, "search_"))
+ds <- ds %>% pivot_wider(id_cols = c("id", "condition"), names_from = "variable", values_from = "value")
+ds <- left_join(ds, demo, by = c("id" = "subject_number"))
 ```
 
 
