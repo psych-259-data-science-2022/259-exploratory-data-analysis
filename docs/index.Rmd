@@ -54,8 +54,8 @@ ds <- ds %>% pivot_longer(-id, names_to = "variable", values_to = "value") %>%
          variable = str_remove_all(variable, "search_"))
 ds <- ds %>% pivot_wider(id_cols = c("id", "condition"), names_from = "variable", values_from = "value")
 ds <- left_join(ds, demo, by = c("id" = "subject_number"))
+ds <- ds %>% relocate(test_date:humidity, .after = condition)
 ```
-
 
 # CDA vs. EDA
 
@@ -93,8 +93,31 @@ ds <- left_join(ds, demo, by = c("id" = "subject_number"))
 .footnote[.small[.bold[Last updated: `r Sys.Date()`]]]
 
 ---
+# Example data for today
+```{r}
+glimpse(ds)
+```
 
-
+---
+# Things we already know how to do
+```{r}
+# Check the number of participant ids
+length(unique(ds$id)) # Should be 30
+# Filter based on expected ranges
+ds %>% select(id, age) %>% filter(age < 18 | age > 22)
+# Filter based a set of possible values
+ds %>% select(id, handedness) %>% filter(!(handedness %in% c("Right", "Left")))
+```
+---
+# Things we already know how to do
+```{r}
+# Get summary stats
+ds %>% summarize(age_min = min(age), mean_age = mean(age), max_age = max(age))
+ds %>% drop_na(age) %>% summarize(age_min = min(age), mean_age = mean(age), max_age = max(age))
+summary(ds$age) #Also a nice option
+# Count
+count(ds, sex)
+```
 
 ---
 `r chunk_reveal("mutate_across", break_type = "rotate", float = "none", widths = c(12, 1), title = "# Mutate across()")`
