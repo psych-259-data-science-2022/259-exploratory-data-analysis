@@ -137,23 +137,41 @@ count(ds, sex)
 - What it's not for: making publication-ready plots
 
 ---
-# Data Explorer: Histograms
+## Data Explorer: Histograms
 ```{r}
 ds %>% select(condition, gazex_std:posy_speed) %>% plot_histogram()
 ```
 
 ---
-# Data Explorer: Density plots
+## Data Explorer: Density plots
 ```{r}
 ds %>% select(condition, gazex_std:posy_speed) %>% plot_density()
 ```
 
 ---
-# Data Explorer: Boxplots by condition
+## Data Explorer: Boxplots by condition
 ```{r}
 ds %>% select(condition, gazex_std:posy_speed) %>% plot_boxplot(by = "condition")
 ```
 
+---
+## Data Explorer: Plot missing
+```{r}
+ds %>% select(id:humidity) %>% plot_missing()
+```
+
+---
+## Data Explorer: Correlations
+```{r}
+ds %>% select(condition, gazex_std:posy_speed) %>% plot_correlation()
+```
+
+---
+## Data Explorer: Correlations
+```{r}
+ds %>% create_report()
+# Saves an html report to your working directory
+```
 
 ---
 `r chunk_reveal("mutate_across", break_type = "rotate", float = "none", widths = c(12, 1), title = "# Mutate across()")`
