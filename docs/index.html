@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R Automation: Functions, mapping, and loops</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="John Franchak" />
+    <script src="libs/header-attrs-2.11.3/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
+    <script src="libs/peerjs-1.3.1/peerjs.min.js"></script>
+    <script src="libs/tiny.toast-1.0.0/toast.min.js"></script>
+    <link href="libs/xaringanExtra-broadcast-0.2.6/broadcast.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-broadcast-0.2.6/broadcast.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# R Automation: Functions, mapping, and loops
+## PSYC 259: Principles of Data Science
+### John Franchak
+
+---
+
+
+
+
+
+
+
+# Types of automation
+- Replacing manual copy/paste/renaming with data-cleaning scripts
+- Replacing drop-down menu analyses with scripts
+--
+
+- **Replacing repetitive code with more efficient code**
+
+
+```r
+# Tedious thing 1
+summarize(m_a = mean(a), m_b = mean(b), m_c = mean(c), m_d = mean(d))
+
+# Tedious thing 2
+ds_a &lt;- read_csv(“data_a.csv”)
+ds_b &lt;- read_csv(“data_b.csv”)
+ds_c &lt;- read_csv(“data_b.csv”) #oops
+```
+
+---
+# Today's tutorial
+
+- Ways to make coding more efficient
+  * Defining reusable functions
+  * Mutating and summarizing *across* columns
+  * Repeating operations using for loops
+  * Repeating operations using *map*
+ 
+.content-box-blue[
+&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; Follow along from the [Github repo](https://github.com/psych-259-data-science-2022/259-automation)
+]
+
+.footnote[.small[.bold[Last updated: 2022-02-07]]]
+
+---
+# Functions extend and customize a programming language
+
+- R packages aren't anything more than sets of functions that you load using `library()`
+- CRAN is a centralized repository of vetted R packages for thousands of different purposes
+  * `install.packages()` installs packages that are hosted on CRAN
+- You can also download experimental packages or newer versions from Github
+  * `devtools` lets you install directly from Github links
+- You can also write your own functions that you load for a project to make repetitive operations easier
+
+---
+# Defining a function
+
+- A function is assigned just like any other variable and will appear in the environment
+- Input *arguments* go in parentheses, and the function body is contained in curly brackets
+- The function returns the last computed value or the value listed by the `return()` function
+- Be sure to highlight and run the entire function to assign it
+
+
+```r
+hyp &lt;- function(side_a, side_b) {
+  a &lt;- side_a^2
+  b &lt;- side_b^2
+  h &lt;- sqrt(a + b)
+  return(h)
+}
+hyp(3, 4)
+```
+
+```
+[1] 5
+```
+
+```r
+hyp(9, 12)
+```
+
+```
+[1] 15
+```
+---
+# Function arguments
+
+- Functions can have any number of arguments
+- To make arguments optional, give a default value
+- `NULL` can be a useful default option 
+
+```r
+hyp &lt;- function(side_a, side_b = NULL) {
+  a &lt;- side_a^2
+  b &lt;- ifelse(is.null(side_b), a, side_b^2)
+  h &lt;- sqrt(a + b)
+  return(h)
+}
+hyp(9, 9)
+```
+
+```
+[1] 12.72792
+```
+
+```r
+hyp(9)
+```
+
+```
+[1] 12.72792
+```
+---
+# Function arguments
+
+
+```r
+hyp &lt;- function(side_a, side_b) {
+  #Functions don't ensure the type of arguments
+  if (is.numeric(side_a) &amp; is.numeric(side_b)) {
+      a &lt;- side_a^2
+      b &lt;- ifelse(is.null(side_b), a, side_b^2)
+      h &lt;- sqrt(a + b)
+      return(h)
+  } else {
+    return("Both sides must be numeric values")
+  }
+}
+hyp(9, 9)
+```
+
+```
+[1] 12.72792
+```
+
+```r
+hyp("9", "8")
+```
+
+```
+[1] "Both sides must be numeric values"
+```
+---
+# Control program flow with `if` and `else` statements
+
+
+```r
+x &lt;- 1
+if (x == 0) {
+  paste(x, "is exactly 0")
+} else if (x &lt; 0) {
+  paste(x, "is negative")
+} else {
+  paste(x, "is positive")
+} 
+```
+
+```
+[1] "1 is positive"
+```
+
+---
+# Control program flow with `if` and `else` statements
+
+
+```r
+x &lt;- -1
+if (x == 0) {
+  paste(x, "is exactly 0")
+} else if (x &lt; 0) {
+  paste(x, "is negative")
+} else {
+  paste(x, "is positive")
+} 
+```
+
+```
+[1] "-1 is negative"
+```
+---
+# Write "wrapper functions" to make your life easier
+
+
+```r
+mean_na &lt;- function(x) mean(x, na.rm = T)
+sd_na &lt;- function(x) sd(x, na.rm = T)
+se_na &lt;- function(x) {
+  x &lt;- discard(x, is.na) #discard is like "filter if not" for vectors
+  sd(x)/sqrt(length(x))
+}
+```
+- Note, one-line functions don't need curly brackets
+
+---
+# Use lists to return multiple outputs
+
+
+```r
+summary_stats_na &lt;- function(x) {
+  # Functions can call previously defined functions
+  list(mean = mean_na(x), sd = sd_na(x), se = se_na(x))
+}
+data &lt;- c(4, 6, 9, 12, 5, 6, NA)
+summary_stats_na(data)
+```
+
+```
+$mean
+[1] 7
+
+$sd
+[1] 2.966479
+
+$se
+[1] 1.21106
+```
+
+---
+# Piped expressions can be saved as functions
+
+
+```r
+avg_height_mass &lt;- . %&gt;% 
+  select(height, mass) %&gt;% 
+  summarize(mean_ht = mean_na(height), mean_ms = mean_na(mass))
+
+starwars %&gt;% avg_height_mass
+```
+
+```
+# A tibble: 1 × 2
+  mean_ht mean_ms
+    &lt;dbl&gt;   &lt;dbl&gt;
+1    174.    97.3
+```
+
+```r
+starwars %&gt;% group_by(species) %&gt;% avg_height_mass
+```
+
+```
+# A tibble: 38 × 3
+   species   mean_ht mean_ms
+   &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;
+ 1 Aleena        79     15  
+ 2 Besalisk     198    102  
+ 3 Cerean       198     82  
+ 4 Chagrian     196    NaN  
+ 5 Clawdite     168     55  
+ 6 Droid        131.    69.8
+ 7 Dug          112     40  
+ 8 Ewok          88     20  
+ 9 Geonosian    183     80  
+10 Gungan       209.    74  
+# … with 28 more rows
+```
+
+---
+# Advantages of functions
+
+- Save typing, make code more readable
+
+- Encapsulate computations
+  * Note that *internal* intermediate variables don't appear in your environment
+  * Functions in R can access variables in the global environment even if they are not passed as arguments
+  
+- Introduce abstraction
+  * Breaks up your code into conceptual chunks
+  * Increases the possibility of reuse (and spend more time debugging things that will be reused)
+
+---
+# Some types of automation are built-in
+- *Vectorized* operations (like adding values between two columns) operate on every element simultaneously (you don't have to perform the operation on every row)
+
+- `rename_all()`, `rename_with()` and `make_clean_names()` operate on multiple columns
+
+- `mutate()` and `summarize()` can operate on selections of columns with `across()`
+  * `across(selection_statement, fx_to_apply)`
+
+---
+count: false
+ 
+# Mutate across()
+.panel1-mutate_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+*ds
+```
+]
+ 
+.panel2-mutate_across-rotate[
+
+```
+# A tibble: 87 × 11
+   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
+   &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+ 1 Luke S…    172    77 blond       fair       blue            19   male  mascu…
+ 2 C-3PO      167    75 &lt;NA&gt;        gold       yellow         112   none  mascu…
+ 3 R2-D2       96    32 &lt;NA&gt;        white, bl… red             33   none  mascu…
+ 4 Darth …    202   136 none        white      yellow          41.9 male  mascu…
+ 5 Leia O…    150    49 brown       light      brown           19   fema… femin…
+ 6 Owen L…    178   120 brown, grey light      blue            52   male  mascu…
+ 7 Beru W…    165    75 brown       light      blue            47   fema… femin…
+ 8 R5-D4       97    32 &lt;NA&gt;        white, red red             NA   none  mascu…
+ 9 Biggs …    183    84 black       light      brown           24   male  mascu…
+10 Obi-Wa…    182    77 auburn, wh… fair       blue-gray       57   male  mascu…
+# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
+```
+]
+
+---
+count: false
+ 
+# Mutate across()
+.panel1-mutate_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+*ds %&gt;% mutate(across(everything(), as.character))
+```
+]
+ 
+.panel2-mutate_across-rotate[
+
+```
+# A tibble: 87 × 11
+   name    height mass  hair_color  skin_color eye_color birth_year sex   gender
+   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt; &lt;chr&gt; 
+ 1 Luke S… 172    77    blond       fair       blue      19         male  mascu…
+ 2 C-3PO   167    75    &lt;NA&gt;        gold       yellow    112        none  mascu…
+ 3 R2-D2   96     32    &lt;NA&gt;        white, bl… red       33         none  mascu…
+ 4 Darth … 202    136   none        white      yellow    41.9       male  mascu…
+ 5 Leia O… 150    49    brown       light      brown     19         fema… femin…
+ 6 Owen L… 178    120   brown, grey light      blue      52         male  mascu…
+ 7 Beru W… 165    75    brown       light      blue      47         fema… femin…
+ 8 R5-D4   97     32    &lt;NA&gt;        white, red red       &lt;NA&gt;       none  mascu…
+ 9 Biggs … 183    84    black       light      brown     24         male  mascu…
+10 Obi-Wa… 182    77    auburn, wh… fair       blue-gray 57         male  mascu…
+# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
+```
+]
+
+---
+count: false
+ 
+# Mutate across()
+.panel1-mutate_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+*ds %&gt;% mutate(across(c("height", "mass"), round))
+```
+]
+ 
+.panel2-mutate_across-rotate[
+
+```
+# A tibble: 87 × 11
+   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
+   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+ 1 Luke S…    172    77 blond       fair       blue            19   male  mascu…
+ 2 C-3PO      167    75 &lt;NA&gt;        gold       yellow         112   none  mascu…
+ 3 R2-D2       96    32 &lt;NA&gt;        white, bl… red             33   none  mascu…
+ 4 Darth …    202   136 none        white      yellow          41.9 male  mascu…
+ 5 Leia O…    150    49 brown       light      brown           19   fema… femin…
+ 6 Owen L…    178   120 brown, grey light      blue            52   male  mascu…
+ 7 Beru W…    165    75 brown       light      blue            47   fema… femin…
+ 8 R5-D4       97    32 &lt;NA&gt;        white, red red             NA   none  mascu…
+ 9 Biggs …    183    84 black       light      brown           24   male  mascu…
+10 Obi-Wa…    182    77 auburn, wh… fair       blue-gray       57   male  mascu…
+# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
+```
+]
+
+---
+count: false
+ 
+# Mutate across()
+.panel1-mutate_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+*ds %&gt;% mutate(across(where(is.numeric), round))
+```
+]
+ 
+.panel2-mutate_across-rotate[
+
+```
+# A tibble: 87 × 11
+   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
+   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+ 1 Luke S…    172    77 blond       fair       blue              19 male  mascu…
+ 2 C-3PO      167    75 &lt;NA&gt;        gold       yellow           112 none  mascu…
+ 3 R2-D2       96    32 &lt;NA&gt;        white, bl… red               33 none  mascu…
+ 4 Darth …    202   136 none        white      yellow            42 male  mascu…
+ 5 Leia O…    150    49 brown       light      brown             19 fema… femin…
+ 6 Owen L…    178   120 brown, grey light      blue              52 male  mascu…
+ 7 Beru W…    165    75 brown       light      blue              47 fema… femin…
+ 8 R5-D4       97    32 &lt;NA&gt;        white, red red               NA none  mascu…
+ 9 Biggs …    183    84 black       light      brown             24 male  mascu…
+10 Obi-Wa…    182    77 auburn, wh… fair       blue-gray         57 male  mascu…
+# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
+```
+]
+
+---
+count: false
+ 
+# Mutate across()
+.panel1-mutate_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+*ds %&gt;% mutate(across(where(is.numeric), round, .names = "{.col}_rounded"))
+```
+]
+ 
+.panel2-mutate_across-rotate[
+
+```
+# A tibble: 87 × 14
+   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
+   &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+ 1 Luke S…    172    77 blond       fair       blue            19   male  mascu…
+ 2 C-3PO      167    75 &lt;NA&gt;        gold       yellow         112   none  mascu…
+ 3 R2-D2       96    32 &lt;NA&gt;        white, bl… red             33   none  mascu…
+ 4 Darth …    202   136 none        white      yellow          41.9 male  mascu…
+ 5 Leia O…    150    49 brown       light      brown           19   fema… femin…
+ 6 Owen L…    178   120 brown, grey light      blue            52   male  mascu…
+ 7 Beru W…    165    75 brown       light      blue            47   fema… femin…
+ 8 R5-D4       97    32 &lt;NA&gt;        white, red red             NA   none  mascu…
+ 9 Biggs …    183    84 black       light      brown           24   male  mascu…
+10 Obi-Wa…    182    77 auburn, wh… fair       blue-gray       57   male  mascu…
+# … with 77 more rows, and 5 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;,
+#   height_rounded &lt;dbl&gt;, mass_rounded &lt;dbl&gt;, birth_year_rounded &lt;dbl&gt;
+```
+]
+
+---
+count: false
+ 
+# Mutate across()
+.panel1-mutate_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+*ds %&gt;% mutate(across(where(is.numeric), ~ .x *100))
+```
+]
+ 
+.panel2-mutate_across-rotate[
+
+```
+# A tibble: 87 × 11
+   name    height  mass hair_color  skin_color eye_color birth_year sex   gender
+   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+ 1 Luke S…  17200  7700 blond       fair       blue            1900 male  mascu…
+ 2 C-3PO    16700  7500 &lt;NA&gt;        gold       yellow         11200 none  mascu…
+ 3 R2-D2     9600  3200 &lt;NA&gt;        white, bl… red             3300 none  mascu…
+ 4 Darth …  20200 13600 none        white      yellow          4190 male  mascu…
+ 5 Leia O…  15000  4900 brown       light      brown           1900 fema… femin…
+ 6 Owen L…  17800 12000 brown, grey light      blue            5200 male  mascu…
+ 7 Beru W…  16500  7500 brown       light      blue            4700 fema… femin…
+ 8 R5-D4     9700  3200 &lt;NA&gt;        white, red red               NA none  mascu…
+ 9 Biggs …  18300  8400 black       light      brown           2400 male  mascu…
+10 Obi-Wa…  18200  7700 auburn, wh… fair       blue-gray       5700 male  mascu…
+# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
+```
+]
+
+---
+count: false
+ 
+# Mutate across()
+.panel1-mutate_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+*ds %&gt;% mutate(across(ends_with("color"), ~ str_remove_all(.x, "[:punct:]")))
+```
+]
+ 
+.panel2-mutate_across-rotate[
+
+```
+# A tibble: 87 × 11
+   name     height  mass hair_color skin_color eye_color birth_year sex   gender
+   &lt;chr&gt;     &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+ 1 Luke Sk…    172    77 blond      fair       blue            19   male  mascu…
+ 2 C-3PO       167    75 &lt;NA&gt;       gold       yellow         112   none  mascu…
+ 3 R2-D2        96    32 &lt;NA&gt;       white blue red             33   none  mascu…
+ 4 Darth V…    202   136 none       white      yellow          41.9 male  mascu…
+ 5 Leia Or…    150    49 brown      light      brown           19   fema… femin…
+ 6 Owen La…    178   120 brown grey light      blue            52   male  mascu…
+ 7 Beru Wh…    165    75 brown      light      blue            47   fema… femin…
+ 8 R5-D4        97    32 &lt;NA&gt;       white red  red             NA   none  mascu…
+ 9 Biggs D…    183    84 black      light      brown           24   male  mascu…
+10 Obi-Wan…    182    77 auburn wh… fair       bluegray        57   male  mascu…
+# … with 77 more rows, and 2 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;
+```
+]
+
+&lt;style&gt;
+.panel1-mutate_across-rotate {
+  color: black;
+  width: 90.4615384615385%;
+  hight: 32%;
+  float: none;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-mutate_across-rotate {
+  color: black;
+  width: 7.53846153846154%;
+  hight: 32%;
+  float: none;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-mutate_across-rotate {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: none;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+---
+# Across() relies on "in-line" functions
+
+- `~ round(.x)` is a shortcut for:
+
+```r
+round_x &lt;- function(x) round(x)
+```
+- in-line functions use `.x` as the argument
+
+---
+count: false
+ 
+# Summarize across()
+.panel1-summarize_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+fx_list &lt;- list(mean = mean_na, sd = sd_na, se = se_na)
+*ds %&gt;% summarize(across(height:mass, mean, na.rm = T))
+```
+]
+ 
+.panel2-summarize_across-rotate[
+
+```
+# A tibble: 1 × 2
+  height  mass
+   &lt;dbl&gt; &lt;dbl&gt;
+1   174.  97.3
+```
+]
+
+---
+count: false
+ 
+# Summarize across()
+.panel1-summarize_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+fx_list &lt;- list(mean = mean_na, sd = sd_na, se = se_na)
+*ds %&gt;% summarize(across(height:mass, ~ mean(.x, na.rm = T)))
+```
+]
+ 
+.panel2-summarize_across-rotate[
+
+```
+# A tibble: 1 × 2
+  height  mass
+   &lt;dbl&gt; &lt;dbl&gt;
+1   174.  97.3
+```
+]
+
+---
+count: false
+ 
+# Summarize across()
+.panel1-summarize_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+fx_list &lt;- list(mean = mean_na, sd = sd_na, se = se_na)
+*ds %&gt;% summarize(across(height:mass, mean_na))
+```
+]
+ 
+.panel2-summarize_across-rotate[
+
+```
+# A tibble: 1 × 2
+  height  mass
+   &lt;dbl&gt; &lt;dbl&gt;
+1   174.  97.3
+```
+]
+
+---
+count: false
+ 
+# Summarize across()
+.panel1-summarize_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+fx_list &lt;- list(mean = mean_na, sd = sd_na, se = se_na)
+*ds %&gt;% summarize(across(where(is.numeric), fx_list))
+```
+]
+ 
+.panel2-summarize_across-rotate[
+
+```
+# A tibble: 1 × 9
+  height_mean height_sd height_se mass_mean mass_sd mass_se birth_year_mean
+        &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;           &lt;dbl&gt;
+1        174.      34.8      3.86      97.3    169.    22.1            87.6
+# … with 2 more variables: birth_year_sd &lt;dbl&gt;, birth_year_se &lt;dbl&gt;
+```
+]
+
+---
+count: false
+ 
+# Summarize across()
+.panel1-summarize_across-rotate[
+
+```r
+ds &lt;- starwars %&gt;% select(-where(is.list))
+fx_list &lt;- list(mean = mean_na, sd = sd_na, se = se_na)
+*ds %&gt;% summarize(across(where(is.numeric), fx_list, .names = "{.fn}-{.col}"))
+```
+]
+ 
+.panel2-summarize_across-rotate[
+
+```
+# A tibble: 1 × 9
+  `mean-height` `sd-height` `se-height` `mean-mass` `sd-mass` `se-mass`
+          &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1          174.        34.8        3.86        97.3      169.      22.1
+# … with 3 more variables: mean-birth_year &lt;dbl&gt;, sd-birth_year &lt;dbl&gt;,
+#   se-birth_year &lt;dbl&gt;
+```
+]
+
+&lt;style&gt;
+.panel1-summarize_across-rotate {
+  color: black;
+  width: 90.4615384615385%;
+  hight: 32%;
+  float: none;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-summarize_across-rotate {
+  color: black;
+  width: 7.53846153846154%;
+  hight: 32%;
+  float: none;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-summarize_across-rotate {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: none;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+---
+# Make a summary stats function
+
+```r
+summary_stats &lt;- function(df, var_select_string) {
+  na_mean &lt;- function(x) mean(x, na.rm = T)
+  na_sd &lt;- function(x) sd(x, na.rm = T)
+  fx_list &lt;- list(M = na_mean, SD = na_sd)
+  df  %&gt;% summarize(across(contains(var_select_string) &amp; where(is.numeric), fx_list))
+}
+ds %&gt;% summary_stats("height")
+```
+
+```
+# A tibble: 1 × 2
+  height_M height_SD
+     &lt;dbl&gt;     &lt;dbl&gt;
+1     174.      34.8
+```
+
+```r
+ds %&gt;% group_by(species) %&gt;% filter(n() &gt; 1) %&gt;% summary_stats(c("height","mass"))
+```
+
+```
+# A tibble: 9 × 5
+  species  height_M height_SD mass_M mass_SD
+  &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+1 Droid        131.     49.1    69.8   51.0 
+2 Gungan       209.     14.2    74     11.3 
+3 Human        177.     12.5    82.8   19.4 
+4 Kaminoan     221      11.3    88     NA   
+5 Mirialan     168       2.83   53.1    4.38
+6 Twi'lek      179       1.41   55     NA   
+7 Wookiee      231       4.24  124     17.0 
+8 Zabrak       173       2.83   80     NA   
+9 &lt;NA&gt;         181.      2.89   48     NA   
+```
+
+---
+
+# Iteration
+
+- Run the same series of computations on each element of a vector or list, one at a time
+- A "for loop" is constructed in a similar way to a function or if-else statement
+
+```r
+for (i in c(1, 2, 3, 4, 5)) {
+  # "i" will take on each value of the vector 1:5
+  print(paste("This is loop iteration", i))
+}
+```
+
+```
+[1] "This is loop iteration 1"
+[1] "This is loop iteration 2"
+[1] "This is loop iteration 3"
+[1] "This is loop iteration 4"
+[1] "This is loop iteration 5"
+```
+
+---
+# For loops
+
+- The vector to iterate over doesn't need to be numeric or sequential:
+
+
+```r
+days_of_the_week &lt;- c("Tues", "Wed", "Mon", "Thur", "Sun", "Fri" )
+
+for (i in days_of_the_week) {
+  print(paste("Today is", i))
+}
+```
+
+```
+[1] "Today is Tues"
+[1] "Today is Wed"
+[1] "Today is Mon"
+[1] "Today is Thur"
+[1] "Today is Sun"
+[1] "Today is Fri"
+```
+
+---
+# Use for loops to run a series of analyses
+
+```r
+mtcars #built-in R dataset
+```
+
+```
+                     mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
+Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
+Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
+Hornet 4 Drive      21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+Hornet Sportabout   18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+Valiant             18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
+Duster 360          14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+Merc 240D           24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+Merc 230            22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+Merc 280            19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
+Merc 280C           17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
+Merc 450SE          16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
+Merc 450SL          17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
+Merc 450SLC         15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
+Cadillac Fleetwood  10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
+Lincoln Continental 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+Chrysler Imperial   14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
+Fiat 128            32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+Honda Civic         30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
+Toyota Corolla      33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1
+Toyota Corona       21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+Dodge Challenger    15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
+AMC Javelin         15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
+Camaro Z28          13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
+Pontiac Firebird    19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2
+Fiat X1-9           27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+Porsche 914-2       26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+Lotus Europa        30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
+Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
+Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
+Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2
+```
+
+---
+# Use for loops to run a series of analyses
+
+```r
+preds &lt;- c("cyl", "disp", "hp", "drat", "wt", "qsec")
+cor_output &lt;- vector() #empty vector to store results
+for (p in preds) {
+  #Calculate each predictor's correlation with 'mpg'
+  cor_output[p] &lt;- cor(mtcars['mpg'], mtcars[p])
+}
+cor_output
+```
+
+```
+       cyl       disp         hp       drat         wt       qsec 
+-0.8521620 -0.8475514 -0.7761684  0.6811719 -0.8676594  0.4186840 
+```
+
+---
+# Use for loops to run a series of analyses
+
+```r
+# Simple linear regression
+lm(mpg ~ cyl, data = mtcars)
+```
+
+```
+
+Call:
+lm(formula = mpg ~ cyl, data = mtcars)
+
+Coefficients:
+(Intercept)          cyl  
+     37.885       -2.876  
+```
+
+---
+# Use for loops to run a series of analyses
+
+```r
+preds &lt;- c("cyl", "disp", "hp", "drat", "wt", "qsec")
+for (p in preds) {
+  f &lt;- as.formula(paste("mpg ~ ", p)) # Convert a string to a formula
+  res &lt;- lm(f, data = mtcars)
+  print(p) #Need to explicitly print things within loops so that they display
+  print(summary(res))
+}
+```
+
+```
+[1] "cyl"
+
+Call:
+lm(formula = f, data = mtcars)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.9814 -2.1185  0.2217  1.0717  7.5186 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  37.8846     2.0738   18.27  &lt; 2e-16 ***
+cyl          -2.8758     0.3224   -8.92 6.11e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.206 on 30 degrees of freedom
+Multiple R-squared:  0.7262,	Adjusted R-squared:  0.7171 
+F-statistic: 79.56 on 1 and 30 DF,  p-value: 6.113e-10
+
+[1] "disp"
+
+Call:
+lm(formula = f, data = mtcars)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.8922 -2.2022 -0.9631  1.6272  7.2305 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 29.599855   1.229720  24.070  &lt; 2e-16 ***
+disp        -0.041215   0.004712  -8.747 9.38e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.251 on 30 degrees of freedom
+Multiple R-squared:  0.7183,	Adjusted R-squared:  0.709 
+F-statistic: 76.51 on 1 and 30 DF,  p-value: 9.38e-10
+
+[1] "hp"
+
+Call:
+lm(formula = f, data = mtcars)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.7121 -2.1122 -0.8854  1.5819  8.2360 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 30.09886    1.63392  18.421  &lt; 2e-16 ***
+hp          -0.06823    0.01012  -6.742 1.79e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.863 on 30 degrees of freedom
+Multiple R-squared:  0.6024,	Adjusted R-squared:  0.5892 
+F-statistic: 45.46 on 1 and 30 DF,  p-value: 1.788e-07
+
+[1] "drat"
+
+Call:
+lm(formula = f, data = mtcars)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-9.0775 -2.6803 -0.2095  2.2976  9.0225 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   -7.525      5.477  -1.374     0.18    
+drat           7.678      1.507   5.096 1.78e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.485 on 30 degrees of freedom
+Multiple R-squared:  0.464,	Adjusted R-squared:  0.4461 
+F-statistic: 25.97 on 1 and 30 DF,  p-value: 1.776e-05
+
+[1] "wt"
+
+Call:
+lm(formula = f, data = mtcars)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.5432 -2.3647 -0.1252  1.4096  6.8727 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  37.2851     1.8776  19.858  &lt; 2e-16 ***
+wt           -5.3445     0.5591  -9.559 1.29e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.046 on 30 degrees of freedom
+Multiple R-squared:  0.7528,	Adjusted R-squared:  0.7446 
+F-statistic: 91.38 on 1 and 30 DF,  p-value: 1.294e-10
+
+[1] "qsec"
+
+Call:
+lm(formula = f, data = mtcars)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-9.8760 -3.4539 -0.7203  2.2774 11.6491 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)  -5.1140    10.0295  -0.510   0.6139  
+qsec          1.4121     0.5592   2.525   0.0171 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.564 on 30 degrees of freedom
+Multiple R-squared:  0.1753,	Adjusted R-squared:  0.1478 
+F-statistic: 6.377 on 1 and 30 DF,  p-value: 0.01708
+```
+
+---
+# Map a function to each element of a vector/list
+
+.center[![an image](map.png)]
+
+---
+# Map a function to each element of a vector/list
+
+```r
+days_of_the_week &lt;- c("Mon", "Tues", "Wed", "Thur", "Fri", "Sat", "Sun")
+map(days_of_the_week, toupper) #Default output is a list
+```
+
+```
+[[1]]
+[1] "MON"
+
+[[2]]
+[1] "TUES"
+
+[[3]]
+[1] "WED"
+
+[[4]]
+[1] "THUR"
+
+[[5]]
+[1] "FRI"
+
+[[6]]
+[1] "SAT"
+
+[[7]]
+[1] "SUN"
+```
+---
+# Map a function to each element of a vector/list
+
+```r
+days_of_the_week &lt;- c("Mon", "Tues", "Wed", "Thur", "Fri", "Sat", "Sun")
+map_chr(days_of_the_week, toupper) #Use map_* to specify the output type
+```
+
+```
+[1] "MON"  "TUES" "WED"  "THUR" "FRI"  "SAT"  "SUN" 
+```
+
+```r
+map_chr(days_of_the_week, ~ paste("Day: ", .x)) #Use in-line fns like in across()
+```
+
+```
+[1] "Day:  Mon"  "Day:  Tues" "Day:  Wed"  "Day:  Thur" "Day:  Fri" 
+[6] "Day:  Sat"  "Day:  Sun" 
+```
+
+```r
+map_lgl(days_of_the_week, ~ str_detect(.x, "M"))
+```
+
+```
+[1]  TRUE FALSE FALSE FALSE FALSE FALSE FALSE
+```
+
+---
+# Use map to run a series of analyses
+
+```r
+preds &lt;- c("cyl", "disp", "hp", "drat", "wt", "qsec")
+cor_output &lt;- map(preds, ~ cor(mtcars['mpg'], mtcars[.x]))
+cor_output
+```
+
+```
+[[1]]
+          cyl
+mpg -0.852162
+
+[[2]]
+          disp
+mpg -0.8475514
+
+[[3]]
+            hp
+mpg -0.7761684
+
+[[4]]
+         drat
+mpg 0.6811719
+
+[[5]]
+            wt
+mpg -0.8676594
+
+[[6]]
+        qsec
+mpg 0.418684
+```
+
+---
+# Use map to run a series of analyses
+
+```r
+preds &lt;- c("cyl", "disp", "hp", "drat", "wt", "qsec")
+cor_output &lt;- map_dbl(preds, ~ cor(mtcars['mpg'], mtcars[.x]))
+cor_output
+```
+
+```
+[1] -0.8521620 -0.8475514 -0.7761684  0.6811719 -0.8676594  0.4186840
+```
+
+```r
+# Use set_names to make mapped outputs more readable
+cor_output %&gt;% set_names(preds)
+```
+
+```
+       cyl       disp         hp       drat         wt       qsec 
+-0.8521620 -0.8475514 -0.7761684  0.6811719 -0.8676594  0.4186840 
+```
+
+---
+# Use map to run a series of analyses
+
+```r
+preds &lt;- c("cyl", "disp", "hp", "drat", "wt", "qsec")
+output &lt;- map(preds, ~ lm(as.formula(paste("mpg ~ ", .x)), data = mtcars))
+output %&gt;% set_names(preds)
+```
+
+```
+$cyl
+
+Call:
+lm(formula = as.formula(paste("mpg ~ ", .x)), data = mtcars)
+
+Coefficients:
+(Intercept)          cyl  
+     37.885       -2.876  
+
+
+$disp
+
+Call:
+lm(formula = as.formula(paste("mpg ~ ", .x)), data = mtcars)
+
+Coefficients:
+(Intercept)         disp  
+   29.59985     -0.04122  
+
+
+$hp
+
+Call:
+lm(formula = as.formula(paste("mpg ~ ", .x)), data = mtcars)
+
+Coefficients:
+(Intercept)           hp  
+   30.09886     -0.06823  
+
+
+$drat
+
+Call:
+lm(formula = as.formula(paste("mpg ~ ", .x)), data = mtcars)
+
+Coefficients:
+(Intercept)         drat  
+     -7.525        7.678  
+
+
+$wt
+
+Call:
+lm(formula = as.formula(paste("mpg ~ ", .x)), data = mtcars)
+
+Coefficients:
+(Intercept)           wt  
+     37.285       -5.344  
+
+
+$qsec
+
+Call:
+lm(formula = as.formula(paste("mpg ~ ", .x)), data = mtcars)
+
+Coefficients:
+(Intercept)         qsec  
+     -5.114        1.412  
+```
+
+---
+# Other considerations
+
+- If you're new to loops/mapping, don't try to write the whole thing at once
+
+- First write the single element/single case computation, and then edit it to work over a loop/map
+
+- Writing a function makes map or across a lot easier to use (no need for in-line functions)
+
+- Splitting is a nice way to create a list of filtered data frames to feed into map
+
+---
+# Use map to run a series of analyses
+
+```r
+preds &lt;- c("cyl", "disp", "hp", "drat", "wt", "qsec")
+mpg_lm &lt;- function(p) {
+  f &lt;- as.formula(paste("mpg ~ ", p))
+  res &lt;- lm(f, data = mtcars)
+  res$call &lt;- f
+  return(res)
+}
+results &lt;- map(preds, mpg_lm)
+map(results, summary)
+```
+
+```
+[[1]]
+
+Call:
+mpg ~ cyl
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.9814 -2.1185  0.2217  1.0717  7.5186 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  37.8846     2.0738   18.27  &lt; 2e-16 ***
+cyl          -2.8758     0.3224   -8.92 6.11e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.206 on 30 degrees of freedom
+Multiple R-squared:  0.7262,	Adjusted R-squared:  0.7171 
+F-statistic: 79.56 on 1 and 30 DF,  p-value: 6.113e-10
+
+
+[[2]]
+
+Call:
+mpg ~ disp
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.8922 -2.2022 -0.9631  1.6272  7.2305 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 29.599855   1.229720  24.070  &lt; 2e-16 ***
+disp        -0.041215   0.004712  -8.747 9.38e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.251 on 30 degrees of freedom
+Multiple R-squared:  0.7183,	Adjusted R-squared:  0.709 
+F-statistic: 76.51 on 1 and 30 DF,  p-value: 9.38e-10
+
+
+[[3]]
+
+Call:
+mpg ~ hp
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.7121 -2.1122 -0.8854  1.5819  8.2360 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 30.09886    1.63392  18.421  &lt; 2e-16 ***
+hp          -0.06823    0.01012  -6.742 1.79e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.863 on 30 degrees of freedom
+Multiple R-squared:  0.6024,	Adjusted R-squared:  0.5892 
+F-statistic: 45.46 on 1 and 30 DF,  p-value: 1.788e-07
+
+
+[[4]]
+
+Call:
+mpg ~ drat
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-9.0775 -2.6803 -0.2095  2.2976  9.0225 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   -7.525      5.477  -1.374     0.18    
+drat           7.678      1.507   5.096 1.78e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.485 on 30 degrees of freedom
+Multiple R-squared:  0.464,	Adjusted R-squared:  0.4461 
+F-statistic: 25.97 on 1 and 30 DF,  p-value: 1.776e-05
+
+
+[[5]]
+
+Call:
+mpg ~ wt
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.5432 -2.3647 -0.1252  1.4096  6.8727 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  37.2851     1.8776  19.858  &lt; 2e-16 ***
+wt           -5.3445     0.5591  -9.559 1.29e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.046 on 30 degrees of freedom
+Multiple R-squared:  0.7528,	Adjusted R-squared:  0.7446 
+F-statistic: 91.38 on 1 and 30 DF,  p-value: 1.294e-10
+
+
+[[6]]
+
+Call:
+mpg ~ qsec
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-9.8760 -3.4539 -0.7203  2.2774 11.6491 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)  -5.1140    10.0295  -0.510   0.6139  
+qsec          1.4121     0.5592   2.525   0.0171 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.564 on 30 degrees of freedom
+Multiple R-squared:  0.1753,	Adjusted R-squared:  0.1478 
+F-statistic: 6.377 on 1 and 30 DF,  p-value: 0.01708
+```
+
+---
+# What if we wanted all combinations?
+
+```r
+preds &lt;- c("cyl", "disp", "hp", "drat", "wt", "qsec")
+all_combos &lt;- expand.grid(preds, preds) %&gt;% filter(Var1 != Var2)
+all_combos
+```
+
+```
+   Var1 Var2
+1  disp  cyl
+2    hp  cyl
+3  drat  cyl
+4    wt  cyl
+5  qsec  cyl
+6   cyl disp
+7    hp disp
+8  drat disp
+9    wt disp
+10 qsec disp
+11  cyl   hp
+12 disp   hp
+13 drat   hp
+14   wt   hp
+15 qsec   hp
+16  cyl drat
+17 disp drat
+18   hp drat
+19   wt drat
+20 qsec drat
+21  cyl   wt
+22 disp   wt
+23   hp   wt
+24 drat   wt
+25 qsec   wt
+26  cyl qsec
+27 disp qsec
+28   hp qsec
+29 drat qsec
+30   wt qsec
+```
+
+---
+# Use map to run a series of analyses
+
+```r
+# Revise fx to take two inputs
+mpg_lm &lt;- function(criterion, predictor) {
+  f &lt;- as.formula(paste(criterion,"~",predictor))
+  res &lt;- lm(f, data = mtcars)
+  res$call &lt;- f
+  return(res)
+}
+# Use map2 to provide two inputs
+results &lt;- map2(all_combos$Var1, all_combos$Var2, mpg_lm)
+map(results, summary)
+```
+
+```
+[[1]]
+
+Call:
+disp ~ cyl
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-73.985 -45.233   3.565  26.688 127.818 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -156.609     35.181  -4.452 0.000109 ***
+cyl           62.599      5.469  11.445  1.8e-12 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 54.38 on 30 degrees of freedom
+Multiple R-squared:  0.8137,	Adjusted R-squared:  0.8075 
+F-statistic:   131 on 1 and 30 DF,  p-value: 1.803e-12
+
+
+[[2]]
+
+Call:
+hp ~ cyl
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-54.61 -25.99 -11.28  21.51 130.39 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  -51.054     24.982  -2.044   0.0499 *  
+cyl           31.958      3.884   8.229 3.48e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 38.62 on 30 degrees of freedom
+Multiple R-squared:  0.693,	Adjusted R-squared:  0.6827 
+F-statistic: 67.71 on 1 and 30 DF,  p-value: 3.478e-09
+
+
+[[3]]
+
+Call:
+drat ~ cyl
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8759 -0.2079 -0.0413  0.2641  1.0032 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  4.89316    0.25111  19.486  &lt; 2e-16 ***
+cyl         -0.20955    0.03904  -5.368 8.24e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3882 on 30 degrees of freedom
+Multiple R-squared:  0.4899,	Adjusted R-squared:  0.4729 
+F-statistic: 28.81 on 1 and 30 DF,  p-value: 8.245e-06
+
+
+[[4]]
+
+Call:
+wt ~ cyl
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8243 -0.4293 -0.1518  0.3031  1.4297 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.56462    0.40062   1.409    0.169    
+cyl          0.42871    0.06228   6.883 1.22e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6193 on 30 degrees of freedom
+Multiple R-squared:  0.6123,	Adjusted R-squared:  0.5994 
+F-statistic: 47.38 on 1 and 30 DF,  p-value: 1.218e-07
+
+
+[[5]]
+
+Call:
+qsec ~ cyl
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.4597 -0.9373  0.3003  0.8597  3.7572 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  21.5092     0.9477  22.697  &lt; 2e-16 ***
+cyl          -0.5916     0.1473  -4.015 0.000366 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.465 on 30 degrees of freedom
+Multiple R-squared:  0.3496,	Adjusted R-squared:  0.3279 
+F-statistic: 16.12 on 1 and 30 DF,  p-value: 0.0003661
+
+
+[[6]]
+
+Call:
+cyl ~ disp
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.3236 -0.6317 -0.1129  0.6915  1.2266 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 3.188568   0.296388   10.76 8.12e-12 ***
+disp        0.012998   0.001136   11.45 1.80e-12 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.7837 on 30 degrees of freedom
+Multiple R-squared:  0.8137,	Adjusted R-squared:  0.8075 
+F-statistic:   131 on 1 and 30 DF,  p-value: 1.803e-12
+
+
+[[7]]
+
+Call:
+hp ~ disp
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-48.623 -28.378  -6.558  13.588 157.562 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  45.7345    16.1289   2.836  0.00811 ** 
+disp          0.4375     0.0618   7.080 7.14e-08 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 42.65 on 30 degrees of freedom
+Multiple R-squared:  0.6256,	Adjusted R-squared:  0.6131 
+F-statistic: 50.13 on 1 and 30 DF,  p-value: 7.143e-08
+
+
+[[8]]
+
+Call:
+drat ~ disp
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.85409 -0.23642  0.01812  0.13112  0.99196 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  4.3034722  0.1447123  29.738  &lt; 2e-16 ***
+disp        -0.0030639  0.0005545  -5.526 5.28e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3826 on 30 degrees of freedom
+Multiple R-squared:  0.5044,	Adjusted R-squared:  0.4879 
+F-statistic: 30.53 on 1 and 30 DF,  p-value: 5.282e-06
+
+
+[[9]]
+
+Call:
+wt ~ disp
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.89044 -0.29775 -0.00684  0.33428  0.66525 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 1.5998146  0.1729964   9.248 2.74e-10 ***
+disp        0.0070103  0.0006629  10.576 1.22e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4574 on 30 degrees of freedom
+Multiple R-squared:  0.7885,	Adjusted R-squared:  0.7815 
+F-statistic: 111.8 on 1 and 30 DF,  p-value: 1.222e-11
+
+
+[[10]]
+
+Call:
+qsec ~ disp
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.8848 -1.2180  0.0448  0.9232  4.4890 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 19.291463   0.619031  31.164   &lt;2e-16 ***
+disp        -0.006253   0.002372  -2.636   0.0131 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.637 on 30 degrees of freedom
+Multiple R-squared:  0.1881,	Adjusted R-squared:  0.161 
+F-statistic:  6.95 on 1 and 30 DF,  p-value: 0.01314
+
+
+[[11]]
+
+Call:
+cyl ~ hp
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.27078 -0.74879 -0.06417  0.63512  1.74067 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 3.006795   0.425485   7.067 7.41e-08 ***
+hp          0.021684   0.002635   8.229 3.48e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.006 on 30 degrees of freedom
+Multiple R-squared:  0.693,	Adjusted R-squared:  0.6827 
+F-statistic: 67.71 on 1 and 30 DF,  p-value: 3.478e-09
+
+
+[[12]]
+
+Call:
+disp ~ hp
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-198.97  -37.39  -18.27   57.55  157.91 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  20.9925    32.6066   0.644    0.525    
+hp            1.4298     0.2019   7.080 7.14e-08 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 77.09 on 30 degrees of freedom
+Multiple R-squared:  0.6256,	Adjusted R-squared:  0.6131 
+F-statistic: 50.13 on 1 and 30 DF,  p-value: 7.143e-08
+
+
+[[13]]
+
+Call:
+drat ~ hp
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.98245 -0.40998  0.06055  0.24054  1.03398 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  4.109909   0.205444   20.00  &lt; 2e-16 ***
+hp          -0.003500   0.001272   -2.75  0.00999 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4857 on 30 degrees of freedom
+Multiple R-squared:  0.2014,	Adjusted R-squared:  0.1748 
+F-statistic: 7.565 on 1 and 30 DF,  p-value: 0.009989
+
+
+[[14]]
+
+Call:
+wt ~ hp
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.41757 -0.53122 -0.02038  0.42536  1.56455 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 1.838247   0.316520   5.808 2.39e-06 ***
+hp          0.009401   0.001960   4.796 4.15e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.7483 on 30 degrees of freedom
+Multiple R-squared:  0.4339,	Adjusted R-squared:  0.4151 
+F-statistic:    23 on 1 and 30 DF,  p-value: 4.146e-05
+
+
+[[15]]
+
+Call:
+qsec ~ hp
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.1766 -0.6975  0.0348  0.6520  4.0972 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 20.556354   0.542424  37.897  &lt; 2e-16 ***
+hp          -0.018458   0.003359  -5.495 5.77e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.282 on 30 degrees of freedom
+Multiple R-squared:  0.5016,	Adjusted R-squared:  0.485 
+F-statistic: 30.19 on 1 and 30 DF,  p-value: 5.766e-06
+
+
+[[16]]
+
+Call:
+cyl ~ drat
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.1433 -1.0573  0.4698  0.6457  3.2700 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  14.5960     1.5831   9.220 2.93e-10 ***
+drat         -2.3379     0.4355  -5.368 8.24e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.297 on 30 degrees of freedom
+Multiple R-squared:  0.4899,	Adjusted R-squared:  0.4729 
+F-statistic: 28.81 on 1 and 30 DF,  p-value: 8.245e-06
+
+
+[[17]]
+
+Call:
+disp ~ drat
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-143.44  -60.48  -22.98   61.85  222.91 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   822.82     108.29   7.598 1.79e-08 ***
+drat         -164.63      29.79  -5.526 5.28e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 88.69 on 30 degrees of freedom
+Multiple R-squared:  0.5044,	Adjusted R-squared:  0.4879 
+F-statistic: 30.53 on 1 and 30 DF,  p-value: 5.282e-06
+
+
+[[18]]
+
+Call:
+hp ~ drat
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-89.828 -40.261  -7.934   7.247 185.058 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   353.65      76.05    4.65 6.24e-05 ***
+drat          -57.55      20.92   -2.75  0.00999 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 62.28 on 30 degrees of freedom
+Multiple R-squared:  0.2014,	Adjusted R-squared:  0.1748 
+F-statistic: 7.565 on 1 and 30 DF,  p-value: 0.009989
+
+
+[[19]]
+
+Call:
+wt ~ drat
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.47813 -0.45423 -0.08474  0.29786  1.64984 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   7.9063     0.8522   9.277 2.55e-10 ***
+drat         -1.3038     0.2345  -5.561 4.78e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.698 on 30 degrees of freedom
+Multiple R-squared:  0.5076,	Adjusted R-squared:  0.4912 
+F-statistic: 30.92 on 1 and 30 DF,  p-value: 4.784e-06
+
+
+[[20]]
+
+Call:
+qsec ~ drat
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-3.5388 -0.9413  0.0324  0.9161  4.9527 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  16.7525     2.2087   7.585 1.86e-08 ***
+drat          0.3048     0.6076   0.502     0.62    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.809 on 30 degrees of freedom
+Multiple R-squared:  0.008318,	Adjusted R-squared:  -0.02474 
+F-statistic: 0.2516 on 1 and 30 DF,  p-value: 0.6196
+
+
+[[21]]
+
+Call:
+cyl ~ wt
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.14858 -0.77747 -0.04169  0.94448  1.87998 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   1.5925     0.6968   2.285   0.0295 *  
+wt            1.4282     0.2075   6.883 1.22e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.13 on 30 degrees of freedom
+Multiple R-squared:  0.6123,	Adjusted R-squared:  0.5994 
+F-statistic: 47.38 on 1 and 30 DF,  p-value: 1.218e-07
+
+
+[[22]]
+
+Call:
+disp ~ wt
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-88.18 -33.62 -10.05  35.15 125.59 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  -131.15      35.72  -3.672 0.000933 ***
+wt            112.48      10.64  10.576 1.22e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 57.94 on 30 degrees of freedom
+Multiple R-squared:  0.7885,	Adjusted R-squared:  0.7815 
+F-statistic: 111.8 on 1 and 30 DF,  p-value: 1.222e-11
+
+
+[[23]]
+
+Call:
+hp ~ wt
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-83.430 -33.596 -13.587   7.913 172.030 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   -1.821     32.325  -0.056    0.955    
+wt            46.160      9.625   4.796 4.15e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 52.44 on 30 degrees of freedom
+Multiple R-squared:  0.4339,	Adjusted R-squared:  0.4151 
+F-statistic:    23 on 1 and 30 DF,  p-value: 4.146e-05
+
+
+[[24]]
+
+Call:
+drat ~ wt
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.74206 -0.28100  0.07584  0.30874  0.70966 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  4.84908    0.23512  20.624  &lt; 2e-16 ***
+wt          -0.38931    0.07001  -5.561 4.78e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3814 on 30 degrees of freedom
+Multiple R-squared:  0.5076,	Adjusted R-squared:  0.4912 
+F-statistic: 30.92 on 1 and 30 DF,  p-value: 4.784e-06
+
+
+[[25]]
+
+Call:
+qsec ~ wt
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-3.3638 -1.0766  0.2051  0.8655  5.0298 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  18.8753     1.1025  17.120   &lt;2e-16 ***
+wt           -0.3191     0.3283  -0.972    0.339    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.789 on 30 degrees of freedom
+Multiple R-squared:  0.03053,	Adjusted R-squared:  -0.00179 
+F-statistic: 0.9446 on 1 and 30 DF,  p-value: 0.3389
+
+
+[[26]]
+
+Call:
+cyl ~ qsec
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.8663 -1.0635  0.2253  1.3272  1.9019 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  16.7344     2.6394   6.340 5.41e-07 ***
+qsec         -0.5909     0.1472  -4.015 0.000366 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.464 on 30 degrees of freedom
+Multiple R-squared:  0.3496,	Adjusted R-squared:  0.3279 
+F-statistic: 16.12 on 1 and 30 DF,  p-value: 0.0003661
+
+
+[[27]]
+
+Call:
+disp ~ qsec
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-164.161  -98.395    0.117   62.918  245.226 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   767.62     204.64   3.751 0.000753 ***
+qsec          -30.08      11.41  -2.636 0.013144 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 113.5 on 30 degrees of freedom
+Multiple R-squared:  0.1881,	Adjusted R-squared:  0.161 
+F-statistic:  6.95 on 1 and 30 DF,  p-value: 0.01314
+
+
+[[28]]
+
+Call:
+hp ~ qsec
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-86.903 -33.629   5.336  27.925 100.032 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  631.704     88.700   7.122 6.38e-08 ***
+qsec         -27.174      4.946  -5.495 5.77e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 49.2 on 30 degrees of freedom
+Multiple R-squared:  0.5016,	Adjusted R-squared:  0.485 
+F-statistic: 30.19 on 1 and 30 DF,  p-value: 5.766e-06
+
+
+[[29]]
+
+Call:
+drat ~ qsec
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.9013 -0.4996  0.0660  0.3299  1.3151 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)  3.10947    0.97569   3.187  0.00335 **
+qsec         0.02729    0.05440   0.502  0.61958   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5413 on 30 degrees of freedom
+Multiple R-squared:  0.008318,	Adjusted R-squared:  -0.02474 
+F-statistic: 0.2516 on 1 and 30 DF,  p-value: 0.6196
+
+
+[[30]]
+
+Call:
+wt ~ qsec
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.7950 -0.6865  0.1553  0.4294  2.2040 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)  4.92479    1.76541   2.790  0.00908 **
+qsec        -0.09567    0.09843  -0.972  0.33887   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.9793 on 30 degrees of freedom
+Multiple R-squared:  0.03053,	Adjusted R-squared:  -0.00179 
+F-statistic: 0.9446 on 1 and 30 DF,  p-value: 0.3389
+```
+
+
+---
+# Use map on a split data frame
+
+```r
+ds &lt;- mtcars %&gt;% mutate(trans = factor(am, labels = c("auto","manual")))
+df_split &lt;- ds %&gt;% group_by(trans) %&gt;% group_split %&gt;% set_names(levels(ds$trans))
+results &lt;- map(df_split, ~ lm(mpg ~ hp, data = .x))
+map(results, summary)
+```
+
+```
+$auto
+
+Call:
+lm(formula = mpg ~ hp, data = .x)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.1018 -1.9026  0.6114  1.5592  2.9241 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 26.624848   1.615883  16.477 6.92e-12 ***
+hp          -0.059137   0.009582  -6.172 1.02e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.192 on 17 degrees of freedom
+Multiple R-squared:  0.6914,	Adjusted R-squared:  0.6733 
+F-statistic: 38.09 on 1 and 17 DF,  p-value: 1.025e-05
+
+
+$manual
+
+Call:
+lm(formula = mpg ~ hp, data = .x)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.3818 -3.5802 -0.5367  2.8334  5.8752 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 31.84250    1.99262  15.980 5.84e-09 ***
+hp          -0.05873    0.01325  -4.432  0.00101 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.859 on 11 degrees of freedom
+Multiple R-squared:  0.6411,	Adjusted R-squared:  0.6084 
+F-statistic: 19.65 on 1 and 11 DF,  p-value: 0.001008
+```
+&lt;!-- adjust font size and other formatting defs in this css code chunk --&gt;
+&lt;style type="text/css"&gt;
+.remark-code{line-height: 1.1; font-size: 65%}
+
+@media print {
+  .has-continuation {
+    display: block;
+  }
+}
+
+code.r.hljs.remark-code{
+  position: relative;
+  overflow-x: hidden;
+}
+
+.remark-slide-number {
+  opacity: 0; /* default: 0.5 */
+}
+
+.content-box { 
+    box-sizing: border-box;
+    background-color: #e2e2e2;
+}
+.content-box-blue,
+.content-box-gray,
+.content-box-grey,
+.content-box-army,
+.content-box-green,
+.content-box-purple,
+.content-box-red,
+.content-box-yellow {
+  box-sizing: border-box;
+  border-radius: 15px;
+  margin: 0 0 15px;
+  overflow: hidden;
+  padding: 0px 20px 0px 20px;
+  width: 100%;
+}
+.content-box-blue { background-color: #F0F8FF; }
+.content-box-gray { background-color: #e2e2e2; }
+.content-box-grey {	background-color: #F5F5F5; }
+.content-box-army {	background-color: #737a36; }
+.content-box-green { background-color: #d9edc2; }
+.content-box-purple { background-color: #e2e2f9; }
+.content-box-red { background-color: #ffcccc; }
+.content-box-yellow { background-color: #fef5c4; }
+.content-box-blue .remark-inline-code,
+.content-box-blue .remark-inline-code,
+.content-box-gray .remark-inline-code,
+.content-box-grey .remark-inline-code,
+.content-box-army .remark-inline-code,
+.content-box-green .remark-inline-code,
+.content-box-purple .remark-inline-code,
+.content-box-red .remark-inline-code,
+.content-box-yellow .remark-inline-code { 
+  background: none;
+}
+
+.scroll-box-8 {
+  height:8em;
+  overflow-y: scroll;
+}
+.scroll-box-10 {
+  height:10em;
+  overflow-y: scroll;
+}
+.scroll-box-12 {
+  height:12em;
+  overflow-y: scroll;
+}
+.scroll-box-14 {
+  height:14em;
+  overflow-y: scroll;
+}
+.scroll-box-16 {
+  height:16em;
+  overflow-y: scroll;
+}
+.scroll-box-18 {
+  height:18em;
+  overflow-y: scroll;
+}
+.scroll-box-20 {
+  height:20em;
+  overflow-y: scroll;
+}
+.scroll-output {
+  height: 90%;
+  overflow-y: scroll;
+}
+}
+
+/************************
+ * Font size and colours
+ ************************/
+
+/*      LaTeX style       */
+.Large       , .Large .remark-code, .Large .remark-inline-code { font-size: 144%; }
+.large       , .large .remark-code, .large .remark-inline-code { font-size: 120%; }
+.small       , .small .remark-code, .small .remark-inline-code { font-size: 90%; }
+.footnotesize, .footnotesize .remark-code, .footnotesize .remark-inline-code { font-size: 80%; }
+.scriptsize  , .scriptsize .remark-code, .scriptsize .remark-inline-code { font-size: 70%; }
+.tiny        , .tiny .remark-code, .tiny .remark-inline-code { font-size: 60%; }
+
+/* or you can be more specific */
+.font10 , .code10 .remark-code, .code10 .remark-inline-code{ font-size: 10%; }
+.font20 , .code20 .remark-code, .code20 .remark-inline-code{ font-size: 20%; }
+.font30 , .code30 .remark-code, .code30 .remark-inline-code{ font-size: 30%; }
+.font40 , .code40 .remark-code, .code40 .remark-inline-code{ font-size: 40%; }
+.font50 , .code50 .remark-code, .code50 .remark-inline-code{ font-size: 50%; }
+.font60 , .code60 .remark-code, .code60 .remark-inline-code{ font-size: 60%; }
+.font70 , .code70 .remark-code, .code70 .remark-inline-code{ font-size: 70%; }
+.font75 , .code75 .remark-code, .code75 .remark-inline-code{ font-size: 75%; }
+.font80 , .code80 .remark-code, .code80 .remark-inline-code{ font-size: 80%; }
+.font90 , .code90 .remark-code, .code90 .remark-inline-code{ font-size: 90%; }
+.font100, .code100 .remark-code, .code100 .remark-inline-code{ font-size: 100%; }
+.font110, .code110 .remark-code, .code110 .remark-inline-code{ font-size: 110%; }
+.font120, .code120 .remark-code, .code120 .remark-inline-code{ font-size: 120%; }
+.font130, .code130 .remark-code, .code130 .remark-inline-code{ font-size: 130%; }
+.font140, .code140 .remark-code, .code140 .remark-inline-code{ font-size: 140%; }
+.font150, .code150 .remark-code, .code150 .remark-inline-code{ font-size: 150%; }
+.font160, .code160 .remark-code, .code160 .remark-inline-code{ font-size: 160%; }
+.font170, .code170 .remark-code, .code170 .remark-inline-code{ font-size: 170%; }
+.font175, .code175 .remark-code, .code175 .remark-inline-code{ font-size: 175%; }
+.font180, .code180 .remark-code, .code180 .remark-inline-code{ font-size: 180%; }
+.font190, .code190 .remark-code, .code190 .remark-inline-code{ font-size: 190%; }
+.font200, .code200 .remark-code, .code200 .remark-inline-code{ font-size: 200%; }
+
+.brand-red { color: #e64626; }
+.brand-blue { color: #0148A4; }
+.brand-yellow { color: #FFB800; }
+.brand-charcoal {color: #424242; }
+.brand-gray {color: #F1F1F1;}
+.brand-grey {color: #F1F1F1;}
+.black { color: black; }
+.white { color: white; }
+.red { color: red; }
+.blue { color: blue; }
+.green { color: green; }
+.yellow { color: yellow; }
+.orange { color: orange; }
+.purple { color: purple; }
+.gray { color: gray; }
+.grey { color: gray; }
+
+.bold { font-weight: bold; }
+.bolder { font-weight: bolder; }
+&lt;/style&gt;
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
