@@ -227,7 +227,7 @@ count(ds, sex)
 - What it's not for: making publication-ready plots
 
 ---
-# Data Explorer: Histograms
+## Data Explorer: Histograms
 
 ```r
 ds %&gt;% select(condition, gazex_std:posy_speed) %&gt;% plot_histogram()
@@ -236,7 +236,7 @@ ds %&gt;% select(condition, gazex_std:posy_speed) %&gt;% plot_histogram()
 ![](index_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
 
 ---
-# Data Explorer: Density plots
+## Data Explorer: Density plots
 
 ```r
 ds %&gt;% select(condition, gazex_std:posy_speed) %&gt;% plot_density()
@@ -245,7 +245,7 @@ ds %&gt;% select(condition, gazex_std:posy_speed) %&gt;% plot_density()
 ![](index_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
 
 ---
-# Data Explorer: Boxplots by condition
+## Data Explorer: Boxplots by condition
 
 ```r
 ds %&gt;% select(condition, gazex_std:posy_speed) %&gt;% plot_boxplot(by = "condition")
@@ -253,6 +253,35 @@ ds %&gt;% select(condition, gazex_std:posy_speed) %&gt;% plot_boxplot(by = "cond
 
 ![](index_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
 
+---
+## Data Explorer: Plot missing
+
+```r
+ds %&gt;% select(id:humidity) %&gt;% plot_missing()
+```
+
+![](index_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+## Data Explorer: Correlations
+
+```r
+ds %&gt;% select(condition, gazex_std:posy_speed) %&gt;% plot_correlation()
+```
+
+![](index_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+## Data Explorer: Create Report
+
+- `create_report()` is a brute force approach, which makes every imaginable plot
+- Usually better to narrow in to make sure that you're scanning plots that make sense
+
+
+```r
+ds %&gt;% create_report()
+# Saves an html report to your working directory
+```
 
 ---
 count: false
@@ -510,6 +539,31 @@ ds &lt;- starwars %&gt;% select(-where(is.list))
 
 
 
+---
+# Other option: Make your own plots
+
+- Introducing the `ggplot2` package
+- Parts of a ggplot call:
+
+```r
+# Parts of a ggplot call
+ggplot(data = DATASET, aes(MAPPING STATEMENT)) + 
+  geom_TYPE() + 
+  geom_TYPE() + 
+  ETC... + 
+  OTHER_FORMATTING() #axes, labels, legends, themes, etc.
+```
+- Note that ggplot uses `+`, not `%&gt;%`
+
+---
+# What type of aesthetic mapping depends on what type of geom
+
+.center[![image](geoms.png)]
+
+---
+# What type of aesthetic mapping depends on what type of geom
+- `?geom_point` and scroll down to find required aesthetics in bold
+.center[![image](aesthetics.png)]
 
 &lt;!-- adjust font size and other formatting defs in this css code chunk --&gt;
 &lt;style type="text/css"&gt;

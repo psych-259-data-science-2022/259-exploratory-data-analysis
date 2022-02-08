@@ -167,8 +167,12 @@ ds %>% select(condition, gazex_std:posy_speed) %>% plot_correlation()
 ```
 
 ---
-## Data Explorer: Correlations
-```{r}
+## Data Explorer: Create Report
+
+- `create_report()` is a brute force approach, which makes every imaginable plot
+- Usually better to narrow in to make sure that you're scanning plots that make sense
+
+```{r, eval = F}
 ds %>% create_report()
 # Saves an html report to your working directory
 ```
@@ -187,6 +191,30 @@ ds %>% mutate(across(where(is.numeric), ~ .x *100)) #ROTATE
 ds %>% mutate(across(ends_with("color"), ~ str_remove_all(.x, "[:punct:]"))) #ROTATE
 ```
 
+---
+# Other option: Make your own plots
+
+- Introducing the `ggplot2` package
+- Parts of a ggplot call:
+```{r, eval = F}
+# Parts of a ggplot call
+ggplot(data = DATASET, aes(MAPPING STATEMENT)) + 
+  geom_TYPE() + 
+  geom_TYPE() + 
+  ETC... + 
+  OTHER_FORMATTING() #axes, labels, legends, themes, etc.
+```
+- Note that ggplot uses `+`, not `%>%`
+
+---
+# What type of aesthetic mapping depends on what type of geom
+
+.center[![image](geoms.png)]
+
+---
+# What type of aesthetic mapping depends on what type of geom
+- `?geom_point` and scroll down to find required aesthetics in bold
+.center[![image](aesthetics.png)]
 
 <!-- adjust font size and other formatting defs in this css code chunk -->
 ```{css, eval = TRUE, echo = FALSE}
