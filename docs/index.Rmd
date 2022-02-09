@@ -255,12 +255,53 @@ ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
 ```
 
 ---
-# Saving plots
+`r chunk_reveal("saving", break_type = "auto", widths = c(1.5, 1), title = "Saving plots")`
 
-```{r}
+```{r, saving, include = F}
 ggplot(ds, aes(x = posx_mean, y = posy_mean)) + geom_point()
 #ggsave will save the last plot to file
-ggsave("")
+ggsave("eda/head-position-scatter.jpg")
+
+#You can also save plots to objects (they are lists)
+p1 <- ggplot(ds, aes(x = posx_mean, y = posy_mean)) + geom_point()
+ggsave("eda/head-position-scatter.jpg", plot = p1)
+```
+
+---
+# Automation + plotting
+
+- Each plot you create will appear in the plots tab in RStudio
+
+- Flipping through a few plots is OK, but not hundreds
+
+- Write plotting functions that can save plots to file to better organize them
+
+---
+# Automation + plotting
+```{r}
+two_var_scatter <- function(df, var1, var2) {
+  df_to_plot <- df %>% 
+    select(c(var1, var2)) %>% 
+    rename(var_1 = 1, var_2 = 2)
+  p <- ggplot(df_to_plot, aes(x = var_1, y = var_2)) + 
+    geom_point() + 
+    xlab(var1) + 
+    ylab(var2)
+  ggsave(str_glue("eda/{var1}_{var2}.jpg"), plot = p)
+  return(p)
+}
+two_var_scatter(ds, "posx_std", "posy_std")
+```
+
+---
+# Automation + plotting
+```{r}
+pred_x <- colnames(select(ds, posx_mean:eyey_speed)) %>% keep(str_detect, "x_")
+pred_x
+pred_y <- colnames(select(ds, posx_mean:eyey_speed)) %>% keep(str_detect, "y_")
+pred_y
+pred_x_by_y <- map2(pred_x, pred_y, ~ two_var_scatter(ds, .x, .y))
+pred_x_by_y
 ```
 
 
