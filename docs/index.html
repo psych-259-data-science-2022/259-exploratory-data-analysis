@@ -664,6 +664,147 @@ ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
 
 
 
+---
+count: false
+ 
+Add category to scatterplot
+.panel1-scatter-category-auto[
+
+```r
+*ggplot(ds, aes(x = posx_mean, y = posy_mean, color = condition))
+```
+]
+ 
+.panel2-scatter-category-auto[
+![](index_files/figure-html/scatter-category_auto_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Add category to scatterplot
+.panel1-scatter-category-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean, color = condition)) +
+* geom_point()
+```
+]
+ 
+.panel2-scatter-category-auto[
+![](index_files/figure-html/scatter-category_auto_02_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-scatter-category-auto {
+  color: black;
+  width: 58.8%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-scatter-category-auto {
+  color: black;
+  width: 39.2%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-scatter-category-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+### Faceting is another option
+---
+count: false
+ 
+Facetting a scatterplot
+.panel1-facet-auto[
+
+```r
+*ggplot(ds, aes(x = posx_mean, y = posy_mean))
+```
+]
+ 
+.panel2-facet-auto[
+![](index_files/figure-html/facet_auto_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Facetting a scatterplot
+.panel1-facet-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+* geom_point()
+```
+]
+ 
+.panel2-facet-auto[
+![](index_files/figure-html/facet_auto_02_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+Facetting a scatterplot
+.panel1-facet-auto[
+
+```r
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
+  geom_point() +
+* facet_wrap("condition")
+```
+]
+ 
+.panel2-facet-auto[
+![](index_files/figure-html/facet_auto_03_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-facet-auto {
+  color: black;
+  width: 58.8%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-facet-auto {
+  color: black;
+  width: 39.2%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-facet-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
 
 
 &lt;!-- adjust font size and other formatting defs in this css code chunk --&gt;

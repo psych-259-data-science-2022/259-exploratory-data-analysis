@@ -237,6 +237,31 @@ ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
   geom_hline(yintercept = 0)
 ```
 
+---
+`r chunk_reveal("scatter-category", break_type = "auto", widths = c(1.5, 1), title = "Add category to scatterplot")`
+
+```{r scatter-category, include = FALSE}
+ggplot(ds, aes(x = posx_mean, y = posy_mean, color = condition)) + 
+  geom_point()
+```
+
+---
+`r chunk_reveal("facet", break_type = "auto", widths = c(1.5, 1), title = "Facetting a scatterplot")`
+
+```{r facet, include = FALSE}
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) + 
+  geom_point() + 
+  facet_wrap("condition", ncol = 1)
+```
+
+---
+# Saving plots
+
+```{r}
+ggplot(ds, aes(x = posx_mean, y = posy_mean)) + geom_point()
+#ggsave will save the last plot to file
+ggsave("")
+```
 
 
 <!-- adjust font size and other formatting defs in this css code chunk -->
