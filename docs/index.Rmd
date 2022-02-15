@@ -86,7 +86,7 @@ ds <- ds %>% relocate(test_date:humidity, .after = condition)
   * Plotting distributions using `ggplot2`
  
 .content-box-blue[
-`r icons::fontawesome("github")` Follow along from the [Github repo](https://github.com/psych-259-data-science-2022/259-exploratory-data-analaysis)
+`r icons::fontawesome("github")` Follow along from the [Github repo](https://github.com/psych-259-data-science-2022/259-exploratory-data-analysis)
 ]
 
 .footnote[.small[.bold[Last updated: `r Sys.Date()`]]]
