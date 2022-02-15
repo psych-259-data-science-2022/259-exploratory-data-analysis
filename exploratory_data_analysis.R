@@ -105,6 +105,7 @@ ggplot(ds, aes(x = posx_mean, y = posy_mean)) +
 
 # Saving plots
 
+dir.create("eda") 
 ggplot(ds, aes(x = posx_mean, y = posy_mean)) + geom_point()
 #ggsave will save the last plot to file
 ggsave("eda/head-position-scatter.jpg")
